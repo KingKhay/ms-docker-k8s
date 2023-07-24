@@ -7,5 +7,5 @@ RUN mvn clean package -DskipTests
 #
 FROM eclipse-temurin:17-jdk
 COPY --from=build /app/target/department-service.jar app.jar
-EXPOSE 8030
+EXPOSE 9000
 ENTRYPOINT ["java","-jar","app.jar"]
