@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  my_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "9000:9000"
+    container_name: department-service
+
+  department-db:
+    image: postgres
+    container_name: department-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${postgres_user}
+      POSTGRES_PASSWORD: ${postgres_password}
+      POSTGRES_DB: ${department_db}
+
