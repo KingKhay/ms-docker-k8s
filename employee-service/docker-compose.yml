@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  my_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "9001:9001"
+    container_name: employee-service
+
+  employee-db:
+    image: postgres
+    container_name: employee-db
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: ${postgres_user}
+      POSTGRES_PASSWORD: ${postgres_password}
+      POSTGRES_DB: ${employee_db}
