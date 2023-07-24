@@ -1,1 +1,24 @@
+server:
+  port: 9001
 
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: ${postgres_user}
+    password: ${postgres_password}
+    url: ${employee_db_url}
+
+k8s:
+  department:
+    service: ${department_service_uri}
+
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  health:
+    readinessstate:
+      enabled: true
+    livenessstate:
+      enabled: true
