@@ -20,7 +20,7 @@ spec:
           image: khaydev1/employee-service:1.0.0
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 9000
+            - containerPort: 9001
           env:
             - name: postgres_user
               valueFrom:
@@ -30,7 +30,7 @@ spec:
             - name: postgres_password
               valueFrom:
                 secretKeyRef:
-                  name: department-secret
+                  name: employee-secret
                   key: database_password
             - name: employee_db_url
               valueFrom:
