@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: employee-deployment
+  labels:
+    app: employee
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: employee
+  template:
+    metadata:
+      name: employee
+      labels:
+        app: employee
+    spec:
+      containers:
+        - name: employee-service
+          image: khaydev1/employee-service:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 9000
+          env:
+            - name: postgres_user
+              value: khay #use secret
+            - name: postgres_password
+              value: password #use secret
+            - name: employee_db_url
+              value: jdbc:postgresql://employee-db-service:5432/employeeDB
+            - name: department_service_uri
+              value: department-service
+      restartPolicy: Always
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: employee-db
+          image: postgres:latest
+          env:
+            - name: POSTGRES_USER
+              value: khay #Use Secret
+            - name: POSTGRES_PASSWORD
+              value: password #Use Secret
+            - name: POSTGRES_DB
+              value: employeeDB #Use ConfigMap
+          ports:
+            - containerPort: 5432
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: employee-db-service
+spec:
+  selector:
+    app: postgres
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+  type: ClusterIP
+
+
