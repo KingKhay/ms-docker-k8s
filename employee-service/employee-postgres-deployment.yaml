@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: postgres-deployment
+  name: employee-postgres-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: postgres
+      app: employee-postgres
   template:
     metadata:
       labels:
-        app: postgres
+        app: employee-postgres
     spec:
       containers:
         - name: employee-db
@@ -24,7 +24,7 @@ spec:
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: department-secret
+                  name: employee-secret
                   key: database_password
             - name: POSTGRES_DB
               value: employeeDB
@@ -37,7 +37,7 @@ metadata:
   name: employee-db-service
 spec:
   selector:
-    app: postgres
+    app: employee-postgres
   ports:
     - protocol: TCP
       port: 5432
