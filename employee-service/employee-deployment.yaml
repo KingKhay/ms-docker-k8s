@@ -23,53 +23,34 @@ spec:
             - containerPort: 9000
           env:
             - name: postgres_user
-              value: khay #use secret
+              valueFrom:
+                secretKeyRef:
+                  name: employee-secret
+                  key: database_username
             - name: postgres_password
-              value: password #use secret
+              valueFrom:
+                secretKeyRef:
+                  name: department-secret
+                  key: database_password
             - name: employee_db_url
-              value: jdbc:postgresql://employee-db-service:5432/employeeDB
+              valueFrom:
+                configMapKeyRef:
+                  name: employee-configmap
+                  key: database_url
             - name: department_service_uri
               value: department-service
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 9001
+            initialDelaySeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 9001
+            initialDelaySeconds: 15
+            periodSeconds: 5
       restartPolicy: Always
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: postgres-deployment
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: postgres
-  template:
-    metadata:
-      labels:
-        app: postgres
-    spec:
-      containers:
-        - name: employee-db
-          image: postgres:latest
-          env:
-            - name: POSTGRES_USER
-              value: khay #Use Secret
-            - name: POSTGRES_PASSWORD
-              value: password #Use Secret
-            - name: POSTGRES_DB
-              value: employeeDB #Use ConfigMap
-          ports:
-            - containerPort: 5432
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: employee-db-service
-spec:
-  selector:
-    app: postgres
-  ports:
-    - protocol: TCP
-      port: 5432
-      targetPort: 5432
-  type: ClusterIP
+
 
 
