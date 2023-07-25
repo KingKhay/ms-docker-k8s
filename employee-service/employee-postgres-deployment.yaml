@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: employee-db
+          image: postgres:latest
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: employee-secret
+                  key: database_username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: department-secret
+                  key: database_password
+            - name: POSTGRES_DB
+              value: employeeDB
+          ports:
+            - containerPort: 5432
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: employee-db-service
+spec:
+  selector:
+    app: postgres
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: employee-configmap
+data:
+  database_url: "jdbc:postgresql://employee-db-service:5432/employeeDB"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: employee-secret
+type: Opaque
+data:
+  database_username: a2hheQ==  # base64 encoded
+  database_password: cGFzc3dvcmQ=  # base64 encoded
