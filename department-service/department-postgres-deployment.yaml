@@ -14,14 +14,20 @@ spec:
     spec:
       containers:
         - name: department-db
-          image: postgres:latest
+          image: postgres
           env:
             - name: POSTGRES_USER
-              value: khay #Use secret
+              valueFrom:
+                secretKeyRef:
+                  name: department-secret
+                  key: database_username
             - name: POSTGRES_PASSWORD
-              value: password #Use secret
+              valueFrom:
+                secretKeyRef:
+                  name: department-secret
+                  key: database_password
             - name: POSTGRES_DB
-              value: departmentDB #Use ConfigMap
+              value: departmentDB
           ports:
             - containerPort: 5432
 ---
@@ -37,3 +43,19 @@ spec:
       port: 5432
       targetPort: 5432
   type: ClusterIP
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: department-configmap
+data:
+  database_url: "jdbc:postgresql://department-db-service:5432/departmentDB"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: department-secret
+type: Opaque
+data:
+  database_username: a2hheQ==  # base64 encoded
+  database_password: cGFzc3dvcmQ=  # base64 encoded
