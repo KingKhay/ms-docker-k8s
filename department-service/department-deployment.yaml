@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: department-deployment
+  labels:
+    app: department
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: department
+  template:
+    metadata:
+      name: department
+      labels:
+        app: department
+    spec:
+      containers:
+        - name: department
+          image: khaydev1/department-service:2.0.0
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: postgres_user
+              value: khay #Use Secret
+            - name: postgres_password
+              value: password #Use Secret
+            - name: db_url
+              value: jdbc:postgresql://department-db-service:5432/departmentDB #Use ConfigMap
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: department-service
+spec:
+  selector:
+    app: department
+  ports:
+    - protocol: TCP
+      port: 9000
+      targetPort: 9000
+  type: LoadBalancer
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: department-postgres-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: department-db
+          image: postgres:latest
+          env:
+            - name: POSTGRES_USER
+              value: khay #Use secret
+            - name: POSTGRES_PASSWORD
+              value: password #Use secret
+            - name: POSTGRES_DB
+              value: departmentDB #Use ConfigMap
+          ports:
+            - containerPort: 5432
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: department-db-service
+spec:
+  selector:
+    app: postgres
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+  type: ClusterIP
