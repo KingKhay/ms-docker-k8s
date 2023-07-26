@@ -9,4 +9,6 @@ import java.util.UUID;
 public interface DepartmentRepository extends JpaRepository<Department, UUID> {
 
     Optional<Department> findByEmployeeIdsContains(UUID employeeId);
+
+    Optional<Department> findByName(String name);
 }
