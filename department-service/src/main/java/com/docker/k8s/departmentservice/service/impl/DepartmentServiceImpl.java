@@ -48,6 +48,7 @@ public class DepartmentServiceImpl implements DepartmentService {
                 .orElseThrow(() -> new EntityNotFoundException(DEPARTMENT_NOT_FOUND));
 
         department.addEmployeeId(employeeRequest.getEmployeeId());
+        departmentRepository.save(department);
         return new BasicResponse("employee added successfully");
     }
 }
