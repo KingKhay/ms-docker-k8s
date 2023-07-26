@@ -18,7 +18,7 @@ spec:
       containers:
         - name: department
           image: khaydev1/department-service:2.0.0
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           env:
             - name: postgres_user
               valueFrom:
