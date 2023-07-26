@@ -1,5 +1,7 @@
 package com.docker.k8s.departmentservice.controller;
 
+import com.docker.k8s.departmentservice.dto.BasicResponse;
+import com.docker.k8s.departmentservice.dto.EmployeeRequest;
 import com.docker.k8s.departmentservice.model.Department;
 import com.docker.k8s.departmentservice.service.DepartmentService;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +36,11 @@ public class DepartmentController {
     @GetMapping()
     Page<Department> findAllDepartments(Pageable pageable){
         return departmentService.findAllDepartments(pageable);
+    }
+
+    @PostMapping("/employee")
+    BasicResponse saveEmployeeIdToDepartment(@RequestBody EmployeeRequest employeeRequest){
+        return departmentService.addEmployeeToDepartment(employeeRequest);
     }
 
     @GetMapping("/hello")
