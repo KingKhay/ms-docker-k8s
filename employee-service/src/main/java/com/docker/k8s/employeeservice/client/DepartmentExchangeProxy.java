@@ -14,7 +14,7 @@ import java.util.UUID;
 @HttpExchange(accept = "application/json", url = "/api/v1/departments")
 public interface DepartmentExchangeProxy{
 
-    @GetExchange("/{id}")
+    @GetExchange("/employee/{id}")
     Department getDepartment(@PathVariable UUID id);
 
     @PostExchange("/employee")

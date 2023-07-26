@@ -59,7 +59,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         }catch(WebClientResponseException exception){
             logger.error("Error fetching employee");
             logger.error(exception.getResponseBodyAsString());
-            throw new OperationFailedException("Error fetching saving employee");
+            throw new OperationFailedException("Error fetching employee");
         }
         EmployeeDto employeeDto = mapper.convertValue(employee, EmployeeDto.class);
         employeeDto.setDepartment(department);
