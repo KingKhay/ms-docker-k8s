@@ -13,6 +13,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -45,6 +47,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
+    @Transactional
     public EmployeeDto findEmployeeById(UUID id) {
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new OperationFailedException("Could not find employee"));
@@ -54,12 +57,18 @@ public class EmployeeServiceImpl implements EmployeeService {
         try{
             department = departmentExchangeProxy.getDepartment(employee.getId());
         }catch(WebClientResponseException exception){
-            logger.error("Error saving employee");
+            logger.error("Error fetching employee");
             logger.error(exception.getResponseBodyAsString());
-            throw new OperationFailedException("Error while saving employee");
+            throw new OperationFailedException("Error fetching saving employee");
         }
         EmployeeDto employeeDto = mapper.convertValue(employee, EmployeeDto.class);
         employeeDto.setDepartment(department);
         return employeeDto;
+    }
+
+    @Override
+    public Page<EmployeeDto> findAllEmployees(Pageable pageable) {
+        Page<Employee> employees = employeeRepository.findAll(pageable);
+        return employees.map(employee -> mapper.convertValue(employee, EmployeeDto.class));
     }
 }
