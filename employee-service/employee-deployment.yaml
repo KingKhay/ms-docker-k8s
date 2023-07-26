@@ -38,7 +38,7 @@ spec:
                   name: employee-configmap
                   key: database_url
             - name: department_service_uri
-              value: http://department-service
+              value: http://department-service:9000
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
