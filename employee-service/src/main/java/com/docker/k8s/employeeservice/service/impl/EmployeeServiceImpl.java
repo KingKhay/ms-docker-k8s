@@ -38,6 +38,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             logger.info(response.getMessage());
         }catch(WebClientResponseException exception){
             logger.error("Error saving employee");
+            logger.error(exception.getResponseBodyAsString());
             throw new OperationFailedException("Error while saving employee");
         }
         return mapper.convertValue(savedEmployee, EmployeeDto.class);
@@ -54,6 +55,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             department = departmentExchangeProxy.getDepartment(employee.getId());
         }catch(WebClientResponseException exception){
             logger.error("Error saving employee");
+            logger.error(exception.getResponseBodyAsString());
             throw new OperationFailedException("Error while saving employee");
         }
         EmployeeDto employeeDto = mapper.convertValue(employee, EmployeeDto.class);
