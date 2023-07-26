@@ -18,7 +18,7 @@ spec:
       containers:
         - name: employee-service
           image: khaydev1/employee-service:2.0.0
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
             - containerPort: 9001
           env:
@@ -38,7 +38,7 @@ spec:
                   name: employee-configmap
                   key: database_url
             - name: department_service_uri
-              value: department-service
+              value: http://department-service
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
