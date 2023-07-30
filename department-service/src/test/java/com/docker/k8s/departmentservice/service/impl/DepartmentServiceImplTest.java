@@ -9,6 +9,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -43,5 +49,31 @@ class DepartmentServiceImplTest {
         assertEquals(department.getName(), result.getName());
 
         verify(departmentRepository, times(1)).save(any());
+    }
+
+    @Test
+    @DisplayName("Find Department By ID")
+    void test_find_department_by_id(){
+        List<Department> departments = new ArrayList<>();
+        Department department1 = new Department();
+        department1.setName("IT");
+
+        Department department2 = new Department();
+        department2.setName("MARKETING");
+
+        Department department3 = new Department();
+        department3.setName("DEV");
+
+        Page<Department> departmentPage = new PageImpl<>(departments);
+
+        when(departmentRepository.findAll(any(Pageable.class))).thenReturn(departmentPage);
+
+        Page<Department> result = departmentService.findAllDepartments(Pageable.unpaged());
+
+        assertNotNull(result);
+
+        assertEquals(3, result.getSize());
+
+        verify(departmentRepository, times(1)).findAll(any(Pageable.class));
     }
 }
