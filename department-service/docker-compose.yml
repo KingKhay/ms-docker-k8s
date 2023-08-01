@@ -18,4 +18,11 @@ services:
       POSTGRES_USER: ${postgres_user}
       POSTGRES_PASSWORD: ${postgres_password}
       POSTGRES_DB: ${department_db}
+    restart: always
+    volumes:
+      - department_db:/var/lib/postgresql/data
+
+volumes:
+  department_db:
+    driver: local
 
