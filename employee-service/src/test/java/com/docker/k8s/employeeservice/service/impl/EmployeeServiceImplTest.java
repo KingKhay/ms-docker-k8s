@@ -16,11 +16,13 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -108,5 +110,18 @@ class EmployeeServiceImplTest {
 
         verify(repository, times(1)).findAll(pageable);
         verify(mapper, times(2)).convertValue(any(), eq(EmployeeDto.class));
+    }
+
+    @Test
+    @DisplayName("Test Find All Employees, Empty Page")
+    void testFindAllEmployees_Empty(){
+        Page<Employee> emptyPage = new PageImpl<>(Collections.emptyList());
+
+        when(repository.findAll(any(Pageable.class))).thenReturn(emptyPage);
+
+        Page<EmployeeDto> result = employeeService.findAllEmployees(PageRequest.of(0, 10));
+
+        assertNotNull(result);
+        assertTrue(result.getContent().isEmpty());
     }
 }
