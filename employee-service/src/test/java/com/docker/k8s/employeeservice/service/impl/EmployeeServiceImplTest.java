@@ -1,5 +1,7 @@
 package com.docker.k8s.employeeservice.service.impl;
 
+import com.docker.k8s.employeeservice.client.DepartmentExchangeProxy;
+import com.docker.k8s.employeeservice.dto.BasicResponse;
 import com.docker.k8s.employeeservice.dto.EmployeeDto;
 import com.docker.k8s.employeeservice.model.Employee;
 import com.docker.k8s.employeeservice.repository.EmployeeRepository;
@@ -7,14 +9,24 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpMethod;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.*;
 
 class EmployeeServiceImplTest {
 
@@ -24,17 +36,23 @@ class EmployeeServiceImplTest {
     @Mock
     private ObjectMapper mapper;
 
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private WebClient webClient;
+
+    @Mock
+    private DepartmentExchangeProxy departmentExchangeProxy;
+
     @InjectMocks
     private EmployeeServiceImpl employeeService;
 
     @BeforeEach
-    void setup(){
+    void setup() {
         MockitoAnnotations.openMocks(this);
     }
 
     @Test
     @DisplayName("Save Employee 201")
-    void save_employee_success(){
+    void save_employee_success() {
         EmployeeDto employeeDto = new EmployeeDto();
         employeeDto.setName("Khay");
 
@@ -44,9 +62,51 @@ class EmployeeServiceImplTest {
         when(repository.save(any())).thenReturn(employee);
         when(mapper.convertValue(any(), eq(EmployeeDto.class))).thenReturn(employeeDto);
 
+        BasicResponse basicResponse = new BasicResponse();
+        basicResponse.setMessage("Employee Added successfully");
+
+        given(webClient.method(HttpMethod.POST)
+                .uri(anyString(), anyMap())
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<BasicResponse>() {
+                })).willReturn(Mono.just(basicResponse));
+
+//        when(departmentExchangeProxy.saveEmployeeIdToDepartment(any())).thenReturn(basicResponse);
+
         EmployeeDto result = employeeService.saveEmployee(employeeDto);
 
         assertNotNull(result);
         assertEquals(employeeDto.getName(), result.getName());
+    }
+
+    @Test
+    @DisplayName("Find All Employees 200")
+    void find_all_employees() {
+        Pageable pageable = Pageable.unpaged();
+
+        Employee employee1 = new Employee();
+        employee1.setName("King");
+        Employee employee2 = new Employee();
+        employee2.setName("Khay");
+
+        List<Employee> employees = List.of(employee1, employee2);
+
+        EmployeeDto employeeDto1 = new EmployeeDto();
+        employeeDto1.setName("King");
+        EmployeeDto employeeDto2 = new EmployeeDto();
+        employeeDto2.setName("Khay");
+
+        Page<Employee> pageOfEmployees = new PageImpl<>(employees);
+
+        when(repository.findAll(any(Pageable.class))).thenReturn(pageOfEmployees);
+        when(mapper.convertValue(any(Employee.class), eq(EmployeeDto.class))).thenReturn(employeeDto1, employeeDto2);
+
+        Page<EmployeeDto> result = employeeService.findAllEmployees(pageable);
+
+        assertNotNull(result);
+        assertEquals(2, result.getSize());
+
+        verify(repository, times(1)).findAll(pageable);
+        verify(mapper, times(2)).convertValue(any(), eq(EmployeeDto.class));
     }
 }
