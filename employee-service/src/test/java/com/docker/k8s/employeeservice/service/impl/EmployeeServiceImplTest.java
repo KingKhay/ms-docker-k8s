@@ -3,7 +3,6 @@ package com.docker.k8s.employeeservice.service.impl;
 import com.docker.k8s.employeeservice.client.DepartmentExchangeProxy;
 import com.docker.k8s.employeeservice.dto.BasicResponse;
 import com.docker.k8s.employeeservice.dto.EmployeeDto;
-import com.docker.k8s.employeeservice.exception.OperationFailedException;
 import com.docker.k8s.employeeservice.model.Employee;
 import com.docker.k8s.employeeservice.repository.EmployeeRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -41,9 +40,6 @@ class EmployeeServiceImplTest {
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private WebClient webClient;
-
-    @Mock
-    private DepartmentExchangeProxy departmentExchangeProxy;
 
     @InjectMocks
     private EmployeeServiceImpl employeeService;
