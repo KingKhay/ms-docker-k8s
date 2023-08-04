@@ -3,6 +3,7 @@ package com.docker.k8s.employeeservice.service.impl;
 import com.docker.k8s.employeeservice.client.DepartmentExchangeProxy;
 import com.docker.k8s.employeeservice.dto.BasicResponse;
 import com.docker.k8s.employeeservice.dto.EmployeeDto;
+import com.docker.k8s.employeeservice.exception.OperationFailedException;
 import com.docker.k8s.employeeservice.model.Employee;
 import com.docker.k8s.employeeservice.repository.EmployeeRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -123,5 +124,45 @@ class EmployeeServiceImplTest {
 
         assertNotNull(result);
         assertTrue(result.getContent().isEmpty());
+    }
+
+    @Test()
+    @DisplayName("Test Find All Employees, Pagination scenarios")
+    void testFindAllEmployees_Pagination(){
+
+        Employee employee1 = new Employee();
+        employee1.setName("King");
+        Employee employee2 = new Employee();
+        employee2.setName("Khay");
+
+        List<Employee> employees = List.of(employee1, employee2);
+
+        EmployeeDto employeeDto1 = new EmployeeDto();
+        employeeDto1.setName("King");
+        EmployeeDto employeeDto2 = new EmployeeDto();
+        employeeDto2.setName("Khay");
+
+        List<Employee> employeesList = List.of(employee1, employee2);
+
+        Pageable pageable1 = PageRequest.of(0, 10);
+        Pageable pageable2 = PageRequest.of(1, 10);
+        Pageable pageable3 = PageRequest.of(2, 10);
+
+        when(repository.findAll(pageable1)).thenReturn(new PageImpl<>(employeesList));
+        when(repository.findAll(pageable2)).thenReturn(new PageImpl<>(Collections.emptyList()));
+        when(repository.findAll(pageable3)).thenReturn(new PageImpl<>(Collections.emptyList()));
+
+        Page<EmployeeDto> result1 = employeeService.findAllEmployees(pageable1);
+        Page<EmployeeDto> result2 = employeeService.findAllEmployees(pageable2);
+        Page<EmployeeDto> result3 = employeeService.findAllEmployees(pageable3);
+
+        assertNotNull(result1);
+        assertNotNull(result2);
+        assertNotNull(result3);
+
+        verify(repository, times(3)).findAll(any(Pageable.class));
+        verify(repository, times(1)).findAll(pageable1);
+        verify(repository, times(1)).findAll(pageable2);
+        verify(repository, times(1)).findAll(pageable3);
     }
 }
