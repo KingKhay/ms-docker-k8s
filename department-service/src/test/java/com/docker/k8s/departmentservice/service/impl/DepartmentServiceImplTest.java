@@ -15,6 +15,8 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -52,28 +54,22 @@ class DepartmentServiceImplTest {
     }
 
     @Test
-    @DisplayName("Find Department By ID")
-    void test_find_department_by_id(){
-        List<Department> departments = new ArrayList<>();
-        Department department1 = new Department();
-        department1.setName("IT");
+    @DisplayName("Find Department Of Employee")
+    void test_find_department_of_employee(){
+        UUID employeeId = UUID.randomUUID();
 
-        Department department2 = new Department();
-        department2.setName("MARKETING");
+        Department foundDepartment = new Department();
+        foundDepartment.setName("IT");
 
-        Department department3 = new Department();
-        department3.setName("DEV");
+        Optional<Department> department = Optional.of(foundDepartment);
+        when(departmentRepository.findByEmployeeIdsContains(any(UUID.class))).thenReturn(department);
 
-        Page<Department> departmentPage = new PageImpl<>(departments);
-
-        when(departmentRepository.findAll(any(Pageable.class))).thenReturn(departmentPage);
-
-        Page<Department> result = departmentService.findAllDepartments(Pageable.unpaged());
+        Department result = departmentService.findDepartmentOfEmployee(employeeId);
 
         assertNotNull(result);
+        assertEquals(foundDepartment.getName(), result.getName());
 
-        assertEquals(3, result.getSize());
+        verify(departmentRepository, times(1)).findByEmployeeIdsContains(employeeId);
 
-        verify(departmentRepository, times(1)).findAll(any(Pageable.class));
     }
 }
