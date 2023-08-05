@@ -1,5 +1,6 @@
 package com.docker.k8s.departmentservice.service.impl;
 
+import com.docker.k8s.departmentservice.exception.EntityNotFoundException;
 import com.docker.k8s.departmentservice.model.Department;
 import com.docker.k8s.departmentservice.repository.DepartmentRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -70,6 +71,19 @@ class DepartmentServiceImplTest {
         assertEquals(foundDepartment.getName(), result.getName());
 
         verify(departmentRepository, times(1)).findByEmployeeIdsContains(employeeId);
+    }
 
+    @Test
+    @DisplayName("Find Department of Employee Not Found")
+    void test_find_department_of_employee_not_found(){
+        UUID employeeId = UUID.randomUUID();
+
+        when(departmentRepository.findByEmployeeIdsContains(any(UUID.class))).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> {
+            departmentService.findDepartmentOfEmployee(employeeId);
+        });
+
+        verify(departmentRepository, times(1)).findByEmployeeIdsContains(employeeId);
     }
 }
