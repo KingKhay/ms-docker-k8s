@@ -1,6 +1,5 @@
 package com.docker.k8s.employeeservice.service.impl;
 
-import com.docker.k8s.employeeservice.client.DepartmentExchangeProxy;
 import com.docker.k8s.employeeservice.dto.BasicResponse;
 import com.docker.k8s.employeeservice.dto.EmployeeDto;
 import com.docker.k8s.employeeservice.model.Employee;
