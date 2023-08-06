@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -34,13 +35,13 @@ class DepartmentServiceImplTest {
     private DepartmentServiceImpl departmentService;
 
     @BeforeEach
-    void setup(){
+    void setup() {
         MockitoAnnotations.openMocks(this);
     }
 
     @Test
     @DisplayName("Save Department 201 Success")
-    void test_save_department(){
+    void test_save_department() {
         Department department = new Department();
         department.setName("IT");
 
@@ -56,7 +57,7 @@ class DepartmentServiceImplTest {
 
     @Test
     @DisplayName("Find Department Of Employee")
-    void test_find_department_of_employee(){
+    void test_find_department_of_employee() {
         UUID employeeId = UUID.randomUUID();
 
         Department foundDepartment = new Department();
@@ -75,7 +76,7 @@ class DepartmentServiceImplTest {
 
     @Test
     @DisplayName("Find Department of Employee Not Found")
-    void test_find_department_of_employee_not_found(){
+    void test_find_department_of_employee_not_found() {
         UUID employeeId = UUID.randomUUID();
 
         when(departmentRepository.findByEmployeeIdsContains(any(UUID.class))).thenReturn(Optional.empty());
@@ -86,4 +87,21 @@ class DepartmentServiceImplTest {
 
         verify(departmentRepository, times(1)).findByEmployeeIdsContains(employeeId);
     }
+
+    @Test
+    @DisplayName("Find_Department By Id Success")
+    void test_find_department_by_id() {
+        UUID departmentId = UUID.randomUUID();
+
+        Department department = new Department();
+        department.setId(departmentId);
+
+        when(departmentRepository.findById(any(UUID.class))).thenReturn(Optional.of(department));
+
+        Department result = departmentService.findDepartmentById(departmentId);
+
+        assertNotNull(result);
+        assertEquals(departmentId, result.getId());
+    }
+
 }
