@@ -1,0 +1,34 @@
+pipeline {
+    agent any
+    //We can use the environment block to set environment variables
+    environment {
+        KEY = "Value"
+    }
+     parameters {
+            string(name: 'ENVIRONMENT', description: 'Select the environment', defaultValue: 'dev')
+            choice(name: 'BRANCH', choices: ['master', 'develop', 'feature'], description: 'Select the branch to build')
+            booleanParam(name: 'RUN_TESTS', defaultValue: true, description: 'Run tests during the build')
+            file(name: 'CONFIG_FILE', description: 'Upload a configuration file')
+        }
+    stages {
+
+        stage('Build') {
+            steps {
+                echo 'Building.. Current Build ID is ${env.BUILD_ID}'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Testing.. Current Job Name is ${env.JOB_NAME}'
+                echo "The environment variable set is ${KEY}"
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Deploying.. Jenkins Url is ${env.JENKINS_URL}'
+            }
+        }
+    }
+}
