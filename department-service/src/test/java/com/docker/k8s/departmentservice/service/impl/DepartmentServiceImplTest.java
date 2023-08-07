@@ -130,4 +130,25 @@ class DepartmentServiceImplTest {
         verify(departmentRepository, times(1)).findByName(anyString());
         verify(departmentRepository, times(1)).save(any(Department.class));
     }
+
+    @Test
+    @DisplayName("Add Employee To Department Not Found")
+    void test_add_employee_to_department_not_found(){
+        UUID employeeId = UUID.randomUUID();
+        String departmentName = "IT";
+
+        Department department = new Department();
+        department.setName(departmentName);
+
+        EmployeeRequest employeeRequest = new EmployeeRequest(departmentName, employeeId);
+
+        when(departmentRepository.findByName(anyString())).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> {
+            departmentService.addEmployeeToDepartment(employeeRequest);
+        });
+
+        verify(departmentRepository, times(1)).findByName(anyString());
+        verify(departmentRepository, never()).save(any(Department.class));
+    }
 }
