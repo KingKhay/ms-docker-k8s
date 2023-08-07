@@ -1,5 +1,7 @@
 package com.docker.k8s.departmentservice.service.impl;
 
+import com.docker.k8s.departmentservice.dto.BasicResponse;
+import com.docker.k8s.departmentservice.dto.EmployeeRequest;
 import com.docker.k8s.departmentservice.exception.EntityNotFoundException;
 import com.docker.k8s.departmentservice.model.Department;
 import com.docker.k8s.departmentservice.repository.DepartmentRepository;
@@ -105,5 +107,27 @@ class DepartmentServiceImplTest {
         assertThrows(EntityNotFoundException.class, () -> {
             departmentService.findDepartmentById(departmentId);
         });
+    }
+
+    @Test
+    @DisplayName("Add Employee To Department Success")
+    void test_add_employee_to_department(){
+        UUID employeeId = UUID.randomUUID();
+        String departmentName = "IT";
+
+        Department department = new Department();
+        department.setName(departmentName);
+
+        EmployeeRequest employeeRequest = new EmployeeRequest(departmentName, employeeId);
+
+        when(departmentRepository.findByName(anyString())).thenReturn(Optional.of(department));
+
+        when(departmentRepository.save(any(Department.class))).thenReturn(department);
+
+        BasicResponse basicResponse = departmentService.addEmployeeToDepartment(employeeRequest);
+
+        assertNotNull(basicResponse);
+        verify(departmentRepository, times(1)).findByName(anyString());
+        verify(departmentRepository, times(1)).save(any(Department.class));
     }
 }
