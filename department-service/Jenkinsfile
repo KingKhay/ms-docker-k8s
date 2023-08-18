@@ -1,36 +1,28 @@
 pipeline {
     agent any
-    //We can use the environment block to set environment variables
-    environment {
-        KEY = "Value"
+    tools {
+        maven 'Maven_3'
     }
-     parameters {
-            string(name: 'ENVIRONMENT', description: 'Select the environment', defaultValue: 'dev')
-            choice(name: 'BRANCH', choices: ['master', 'develop', 'feature'], description: 'Select the branch to build')
-            booleanParam(name: 'RUN_TESTS', defaultValue: true, description: 'Run tests during the build')
-            file(name: 'CONFIG_FILE', description: 'Upload a configuration file')
-        }
     stages {
-
-        stage('Build') {
+        stage('Build Maven') {
             steps {
-                echo 'Building.. Current Build ID is ${env.BUILD_ID}'
+                checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/KingKhay/jenkins-ec2.git']])
+                sh 'mvn clean package'
             }
         }
-
-        stage('Test') {
-            when {
-                expression { params.RUN_TESTS }
-            }
+        stage('Build Docker Image'){
             steps {
-                echo "Running tests..."
-                sh 'mvn test'
+               sh "docker build -t khaydev1/jenkins-ec2:1.0.${env.BUILD_ID} ."
             }
         }
-
-        stage('Deploy') {
+        stage('Push Docker Image'){
             steps {
-                echo 'Deploying.. Jenkins Url is ${env.JENKINS_URL}'
+                script {
+                    withCredentials([string(credentialsId: 'dockerhub-pwd', variable: 'dockerhubpwd')]) {
+                        sh 'docker login -u khaydev1 -p ${dockerhubpwd}'
+                    }
+                    sh "docker push khaydev1/department-service:1.0.${env.BUILD_ID}"
+                }
             }
         }
     }
